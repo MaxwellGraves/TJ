@@ -16,7 +16,6 @@ double myRand()
 
 void buildForest(double prob)
 {
-    srand(4);
     int i=0;
     int j=0;
     for(i = 0; i < rsize; i++)
@@ -126,7 +125,6 @@ void delay()
 	//
 	//printf("Time: %0.16f seconds\n" , toc - tic ) ;
 	//
-	return 0;
 }
 
 void clear(){
@@ -141,18 +139,35 @@ void clear(){
 
 int main()
 {
-    buildForest((double)0.65);
-    //displayForest();
-    lightLeft();
-    int isBurntOut = burn();
-    while(isBurntOut == 0)
+    int n;
+    int m;
+    srand(4);
+    for(m = 1; m <20; m++)
     {
-        //displayForest();
-        //delay();
-        //clear();
-        isBurntOut = burn();
+	double normalizedSum = 0;
+	int steps = 0;
+	for(n = 0; n < 100; n++)
+	{
+	    buildForest((double)m * 0.05);
+	    //displayForest();
+	    lightLeft();
+	    int isBurntOut = burn();
+	    while(isBurntOut == 0)
+	    {
+		//displayForest();
+		//delay();
+		//clear();
+		isBurntOut = burn();
+		steps++;
+		
+	    }
+	    //printf("%d\t", steps);
+	    normalizedSum += (double)steps/(double)csize;
+	    steps = 0;
+	}
+	printf("%d\t%g\t%g\n", m, (double)m*0.05, (double)normalizedSum/100.0);
+	normalizedSum = 0;
     }
-    //displayForest();
     return 0;
 }
 
