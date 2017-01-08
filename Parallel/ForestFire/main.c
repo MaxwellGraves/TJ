@@ -7,6 +7,7 @@
 const int rsize = 30;
 const int csize = 40;
 char forest[30][40];
+const int trials = 100;
 
 void buildForest(double prob)
 {
@@ -93,31 +94,74 @@ Q* burn(Q* q)
     return newQ;
 }
 
-int main()
+double trial(double prob)
 {
     int n;
-    int m = 13;
     Q* q;
     srand(4);
-    for(m = 1; m <20; m++)
+    double normalizedSum = 0;
+    int steps = 0;
+    for(n = 0; n < trials; n++)
     {
-        double normalizedSum = 0;
-        int steps = 0;
-        for(n = 0; n < 100; n++)
+        buildForest(prob);
+        q = lightLeft();
+        while(q->head != NULL)
         {
-            buildForest((double)m * 0.05);
-            q = lightLeft();
-            while(q->head != NULL)
-            {
-                q = burn(q);
-                steps++;
-            }
-            normalizedSum += (double)steps/(double)csize;
-            steps = 0;
+            q = burn(q);
+            steps++;
         }
-        printf("%d\t%g\t%g\n", m, (double)m*0.05, (double)normalizedSum/100.0);
-        normalizedSum = 0;
+        normalizedSum += (double)steps/(double)csize;
+        steps = 0;
     }
-    return 0;
+    //printf("%d\t%g\t%g\n", m, (double)m*0.05, (double)normalizedSum/100.0);
+    return normalizedSum/(double)trials;
 }
 
+int main (int argc, char* argv[])
+{
+    int rank;
+    int size;
+    MPI_Status status;
+    int tag = 0;
+
+    int k, j;
+    double prob, val;
+    int m = 1;
+    int t;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if( rank ==0)
+    {
+        for( j = 1; j<size; j++)//send out first values
+        {
+            MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
+            m++;
+        }
+        while( m < 20)//work through values
+        {
+            MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            j = status.MPI_SOURCE;
+            t = status.MPI_TAG;
+            printf("%g\t%g\n", t * 0.05, val);
+            MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
+            m++;
+        }
+        for( j = 1; j<size; j++)//send out first values
+        {
+            MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            t = status.MPI_TAG;
+            printf("%g\t%g\n", t * 0.05, val);
+        }
+    }
+
+    else
+    {
+        MPI_Recv(&m, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        val = trial(m*0.05);
+        j = status.MPI_SOURCE;
+        MPI_Send(&val, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+    }
+}
