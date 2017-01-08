@@ -128,6 +128,7 @@ int main (int argc, char* argv[])
     double prob, val;
     int m = 1;
     int t;
+    int i=1;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -152,7 +153,7 @@ int main (int argc, char* argv[])
             printf("master sent %d to %d\n", m, j);
             m++;
         }
-        for( j = 1; j<size; j++)//send out first values
+        for( i = 1; i<size; i++)//send out first values
         {
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             t = status.MPI_TAG;
