@@ -154,16 +154,24 @@ int main (int argc, char* argv[])
         {
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             t = status.MPI_TAG;
+            j = status.MPI_SOURCE;
             printf("%g\t%g\n", t * 0.05, val);
+            m = 0;
+            MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
         }
     }
 
     else
     {
-        MPI_Recv(&m, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        val = trial(m*0.05);
-        j = status.MPI_SOURCE;
-        MPI_Send(&val, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+        while(1)
+        {
+            MPI_Recv(&m, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            if(m <=0 )
+                break;
+            val = trial(m*0.05);
+            j = status.MPI_SOURCE;
+            MPI_Send(&val, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+        }
     }
     MPI_Finalize();
     return 0;
