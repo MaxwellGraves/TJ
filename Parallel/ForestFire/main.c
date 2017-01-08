@@ -164,4 +164,6 @@ int main (int argc, char* argv[])
         j = status.MPI_SOURCE;
         MPI_Send(&val, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
     }
+    MPI_Finalize();
+    return 0;
 }
