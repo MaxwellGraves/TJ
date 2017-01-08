@@ -138,16 +138,18 @@ int main (int argc, char* argv[])
         for( j = 1; j<size; j++)//send out first values
         {
             MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
+            printf("master sent %d to %d\n", m, j);
             m++;
         }
         while( m < 20)//work through values
         {
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             j = status.MPI_SOURCE;
-            printf("%d\t%d", j, m);
+            //printf("%d\t%d", j, m);
             t = status.MPI_TAG;
-            printf("%g\t%g\n", t * 0.05, val);
+            printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
             MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
+            printf("master sent %d to %d\n", m, j);
             m++;
         }
         for( j = 1; j<size; j++)//send out first values
@@ -155,9 +157,10 @@ int main (int argc, char* argv[])
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             t = status.MPI_TAG;
             j = status.MPI_SOURCE;
-            printf("%g\t%g\n", t * 0.05, val);
+            printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
             m = 0;
             MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
+            printf("master sent %d to %d\n", m, j);
         }
     }
 
@@ -166,11 +169,13 @@ int main (int argc, char* argv[])
         while(1)
         {
             MPI_Recv(&m, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            j = status.MPI_SOURCE;
+            printf("%d received: m: %d  j:%d\n", rank, m, j);
             if(m <=0 )
                 break;
             val = trial(m*0.05);
-            j = status.MPI_SOURCE;
             MPI_Send(&val, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+            printf("%d sent %g to %d\n", rank, val, j);
         }
     }
     MPI_Finalize();
