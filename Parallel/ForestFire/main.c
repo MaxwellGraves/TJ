@@ -144,6 +144,7 @@ int main (int argc, char* argv[])
         {
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             j = status.MPI_SOURCE;
+            printf("%d\t%d", j, m);
             t = status.MPI_TAG;
             printf("%g\t%g\n", t * 0.05, val);
             MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
