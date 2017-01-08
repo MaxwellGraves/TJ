@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "Q.h"
 #include "timeAndDelay.h"
-//#include "mpi.h"
+#include <mpi.h>
 const int rsize = 30;
 const int csize = 40;
 char forest[30][40];
