@@ -4,10 +4,25 @@
 #include "Q.h"
 #include "timeAndDelay.h"
 #include <mpi.h>
-const int rsize = 30;
-const int csize = 40;
-char forest[30][40];
-const int trials = 100;
+const int rsize = 300;
+const int csize = 400;
+char forest[300][400];
+const int trials = 1000;
+const double [43] probs;
+
+void fillProbs()
+{
+    int i = 0;
+    for(i=0; i<43; i++)
+    {
+        if( i <= 8)
+            probs[i] = 0.5 * i;
+        else if(i<=38)
+            probs[i] = 0.01 *(i+32);
+        else
+            probs[i] = 0.5 * (i-24);
+    }
+}
 
 void buildForest(double prob)
 {
@@ -119,6 +134,7 @@ double trial(double prob)
 
 int main (int argc, char* argv[])
 {
+    fillProbs();
     int rank;
     int size;
     MPI_Status status;
@@ -138,19 +154,19 @@ int main (int argc, char* argv[])
     {
         for( j = 1; j<size; j++)//send out first values
         {
-            MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
-            printf("master sent %d to %d\n", m, j);
+            MPI_Send(probs[m], 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+            //printf("master sent %d to %d\n", m, j);
             m++;
         }
-        while( m < 20)//work through values
+        while( m < 43)//work through values
         {
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             j = status.MPI_SOURCE;
             //printf("%d\t%d", j, m);
             t = status.MPI_TAG;
-            printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
-            MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
-            printf("master sent %d to %d\n", m, j);
+            //printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
+            MPI_Send(probs[m], 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+            //printf("master sent %d to %d\n", m, j);
             m++;
         }
         for( i = 1; i<size; i++)//send out first values
@@ -158,10 +174,10 @@ int main (int argc, char* argv[])
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             t = status.MPI_TAG;
             j = status.MPI_SOURCE;
-            printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
+            //printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
             m = 0;
-            MPI_Send(&m, 1, MPI_INT, j, m, MPI_COMM_WORLD);
-            printf("master sent %d to %d\n", m, j);
+            MPI_Send(&m, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+            //printf("master sent %d to %d\n", m, j);
         }
     }
 
@@ -169,14 +185,14 @@ int main (int argc, char* argv[])
     {
         while(1)
         {
-            MPI_Recv(&m, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            MPI_Recv(&prob, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             j = status.MPI_SOURCE;
-            printf("%d received: m: %d  j:%d\n", rank, m, j);
-            if(m <=0 )
+            //printf("%d received: m: %d  j:%d\n", rank, m, j);
+            if(prob <=0 )
                 break;
-            val = trial(m*0.05);
+            val = trial(prob);
             MPI_Send(&val, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
-            printf("%d sent %g to %d\n", rank, val, j);
+            //printf("%d sent %g to %d\n", rank, val, j);
         }
     }
     MPI_Finalize();
