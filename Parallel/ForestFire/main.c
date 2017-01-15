@@ -190,6 +190,7 @@ int main (int argc, char* argv[])
         {
             MPI_Recv(&prob, 1, MPI_DOUBLE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             j = status.MPI_SOURCE;
+            m = status.MPI_TAG;
             //printf("%d received: m: %d  j:%d\n", rank, m, j);
             if(prob <=0 )
                 break;
