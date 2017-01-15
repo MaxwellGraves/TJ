@@ -141,7 +141,7 @@ int main (int argc, char* argv[])
     int tag = 0;
 
     int k, j;
-    double prob, val;
+    double prob, val, currProb;
     int m = 1;
     int t;
     int i=1;
@@ -154,7 +154,8 @@ int main (int argc, char* argv[])
     {
         for( j = 1; j<size; j++)//send out first values
         {
-            MPI_Send(probs[m], 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+            currProb =probs[m];
+            MPI_Send(&currProb, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
             //printf("master sent %d to %d\n", m, j);
             m++;
         }
@@ -164,8 +165,9 @@ int main (int argc, char* argv[])
             j = status.MPI_SOURCE;
             //printf("%d\t%d", j, m);
             t = status.MPI_TAG;
-            //printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
-            MPI_Send(probs[m], 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+            printf("%g\t%g", probs[t], val);
+            currProb =probs[m];
+            MPI_Send(&currProb, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
             //printf("master sent %d to %d\n", m, j);
             m++;
         }
@@ -174,9 +176,10 @@ int main (int argc, char* argv[])
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             t = status.MPI_TAG;
             j = status.MPI_SOURCE;
+            printf("%g\t%g", probs[t], val);
             //printf("master received: prob: %g val: %g j:%d\n", t * 0.05, val, j);
-            m = 0;
-            MPI_Send(&m, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
+            currProb = 0;
+            MPI_Send(&currProb, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
             //printf("master sent %d to %d\n", m, j);
         }
     }
