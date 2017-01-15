@@ -8,12 +8,12 @@ const int rsize = 300;
 const int csize = 400;
 char forest[300][400];
 const int trials = 100;
-double probs [43];
+double probs [44];
 
 void fillProbs()
 {
     int i = 0;
-    for(i=0; i<43; i++)
+    for(i=0; i<44; i++)
     {
         if( i <= 8)
             probs[i] = 0.05 * i;
@@ -159,7 +159,7 @@ int main (int argc, char* argv[])
             //printf("master sent %d to %d\n", m, j);
             m++;
         }
-        while( m < 43)//work through values
+        while( m < 44)//work through values
         {
             MPI_Recv( &val, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             j = status.MPI_SOURCE;
