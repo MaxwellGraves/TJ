@@ -113,7 +113,7 @@ double trial(double prob)
 {
     int n;
     Q* q;
-    srand(4);
+    srand(time(NULL));
     double normalizedSum = 0;
     int steps = 0;
     for(n = 0; n < trials; n++)
