@@ -8,7 +8,7 @@ const int rsize = 300;
 const int csize = 400;
 char forest[300][400];
 const int trials = 1000;
-const double [43] probs;
+double [43] probs;
 
 void fillProbs()
 {
@@ -166,7 +166,7 @@ int main (int argc, char* argv[])
             //printf("%d\t%d", j, m);
             t = status.MPI_TAG;
             printf("%g\t%g", probs[t], val);
-            currProb =probs[m];
+            currProb = probs[m];
             MPI_Send(&currProb, 1, MPI_DOUBLE, j, m, MPI_COMM_WORLD);
             //printf("master sent %d to %d\n", m, j);
             m++;
