@@ -12,7 +12,6 @@ double probs [43];
 
 void fillProbs()
 {
-    probs = malloc(sizeof(double)*43);
     int i = 0;
     for(i=0; i<43; i++)
     {
