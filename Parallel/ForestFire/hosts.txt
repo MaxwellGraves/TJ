@@ -1,0 +1,7 @@
+localhost slots=4
+luigi slots=3
+mario slots=3
+kirby slots=3
+metaknight slots=3
+peach slots=3
+lucario slots=3
