@@ -16,11 +16,11 @@ void fillProbs()
     for(i=0; i<43; i++)
     {
         if( i <= 8)
-            probs[i] = 0.5 * i;
+            probs[i] = 0.05 * i;
         else if(i<=38)
             probs[i] = 0.01 *(i+32);
         else
-            probs[i] = 0.5 * (i-24);
+            probs[i] = 0.05 * (i-24);
     }
 }
 
