@@ -7,7 +7,7 @@
 const int rsize = 300;
 const int csize = 400;
 char forest[300][400];
-const int trials = 100;
+const int trials = 1000;
 double probs [44];
 
 void fillProbs()
