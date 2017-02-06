@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <GL/mpiglut.h>
+
 //
-#include <GL/glut.h>
 
 #define W     800
 #define H     600
