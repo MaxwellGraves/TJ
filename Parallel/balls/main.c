@@ -97,7 +97,7 @@ void vAndNormalize(point* a, point* b, vector* c)
     c->r.y = (b->y-a->y)/mag;
     c->r.z = (b->z-a->z)/mag;
 }
-int rgb[M][N][3] ;
+int rgb[N][M][3] ;
 
 //
 int main(void)
