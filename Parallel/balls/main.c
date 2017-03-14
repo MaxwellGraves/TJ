@@ -97,7 +97,7 @@ void vAndNormalize(point* a, point* b, vector* c)
     c->r.y = (b->y-a->y)/mag;
     c->r.z = (b->z-a->z)/mag;
 }
-int rgb[M][N][3] ;
+int rgb[N][M][3] ;
 
 point p;
 point eToC;
@@ -148,7 +148,7 @@ int main(void)
         for( x = 0 ; x < M ; x++)
         {
             p.x = (x+0.5)*1.333/640 - 0.167;
-            p.y = (y+0.5)/480 - 0.167;
+            p.y = 1 - (y+0.5)/480;
             p.z = 0.0;
             vAndNormalize(&e, &p, &sight);
             int i;
@@ -170,18 +170,18 @@ int main(void)
                     if(T1 > 0 && T1 < minT)
                     {
                         minT = T1;
-                        rgb[x][y][0] = s[i].h.r;
-                        rgb[x][y][1] = s[i].h.g;
-                        rgb[x][y][2] = s[i].h.b;
+                        rgb[y][x][0] = s[i].h.r;
+                        rgb[y][x][1] = s[i].h.g;
+                        rgb[y][x][2] = s[i].h.b;
                     }
 
                     double T2 = (-b - sqrt(disc))/2;
                     if(T2 > 0 && T2 < minT)
                     {
                         minT = T2;
-                        rgb[x][y][0] = s[i].h.r;
-                        rgb[x][y][1] = s[i].h.g;
-                        rgb[x][y][2] = s[i].h.b;
+                        rgb[y][x][0] = s[i].h.r;
+                        rgb[y][x][1] = s[i].h.g;
+                        rgb[y][x][2] = s[i].h.b;
                     }
                 }
             }
