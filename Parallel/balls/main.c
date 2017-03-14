@@ -32,10 +32,10 @@ typedef struct
     point s;
     point r;
     //
-} vector ;
+} ray ;
 //
 point e = { 0.50, 0.50, -1.00 } ;   // the eye
-point g = { 0.00, 1.25, -0.50 } ;   // the light
+point l = { 0.00, 1.25, -0.50 } ;   // the light
 //
 double dotp( point t, point u )
 {
@@ -86,13 +86,18 @@ void init()
     s[3].h.b =      0    ;
 }
 
-void vAndNormalize(point* a, point* b, vector* c)
+double distance(point* a, point* b)
+{
+    double t = (b->x-a->x)*(b->x-a->x) + (b->y-a->y)*(b->y-a->y) + (b->z-a->z)*(b->z-a->z);
+    return sqrt(t);
+}
+
+void vAndNormalize(point* a, point* b, ray* c)
 {
     c->s.x = a->x;
     c->s.y = a->y;
     c->s.z = a->z;
-    double mag = (b->x-a->x)*(b->x-a->x) + (b->y-a->y)*(b->y-a->y) + (b->z-a->z)*(b->z-a->z);
-    mag = sqrt(mag);
+    double mag = distance(a, b);
     c->r.x = (b->x-a->x)/mag;
     c->r.y = (b->y-a->y)/mag;
     c->r.z = (b->z-a->z)/mag;
@@ -101,7 +106,9 @@ int rgb[N][M][3] ;
 
 point p;
 point eToC;
-vector sight;
+point lToC;
+ray sight;
+ray light;
 
 int isShadowed(point* target)
 {
@@ -109,35 +116,45 @@ int isShadowed(point* target)
     double b;
     double c;
     double minT = 10000000;
+    point lightPoint;
+    vAndNormalize(&l, &p, &light);
     for(i = 0; i<4; i++)
     {
 
-        eToC.x = e.x-s[i].c.x;
-        eToC.y = e.y-s[i].c.y;
-        eToC.z = e.z-s[i].c.z;
-        b = 2*(sight.r.x*(eToC.x) + sight.r.y*(eToC.y) + sight.r.z*(eToC.z));
-        c = (eToC.x*eToC.x) + (eToC.y*eToC.y) + (eToC.z*eToC.z)- (s[i].r*s[i].r);
+        lToC.x = l.x-s[i].c.x;
+        lToC.y = l.y-s[i].c.y;
+        lToC.z = l.z-s[i].c.z;
+        b = 2*(light.r.x*(lToC.x) + light.r.y*(lToC.y) + light.r.z*(lToC.z));
+        c = (lToC.x*lToC.x) + (lToC.y*lToC.y) + (lToC.z*lToC.z)- (s[i].r*s[i].r);
         double disc = (b*b)-4*c;
         if (disc >= 0)
         {
             double T1 = (-b + sqrt(disc))/2;
             if(T1 > 0 && T1 < minT)
             {
-                return 1;
+                minT = T1;
             }
 
             double T2 = (-b - sqrt(disc))/2;
             if(T2 > 0 && T2 < minT)
             {
-                return 1;
+                minT = T2;
             }
         }
     }
+    lightPoint.x = light.s.x + minT*light.r.x;
+    lightPoint.y = light.s.y + minT*light.r.y;
+    lightPoint.z = light.s.z + minT*light.r.z;
+    if( distance(&lightPoint, &p) < 0.00001)
+    {
+        return 0;
+    }
+    return 1;
 }
 //
 point p;
 point eToC;
-vector sight;
+ray sight;
 
 int main(void)
 {
@@ -185,17 +202,15 @@ int main(void)
                     }
                 }
             }
-            p.x = sight.s.x + minT*0.9999999*sight.r.x;
-            p.y = sight.s.y + minT*0.9999999*sight.r.y;
-            p.z = sight.s.z + minT*0.9999999*sight.r.z;
+            p.x = sight.s.x + minT*sight.r.x;
+            p.y = sight.s.y + minT*sight.r.y;
+            p.z = sight.s.z + minT*sight.r.z;
             if( isShadowed(&p) == 1)
             {
-                rgb[x][y][0] = s[i].h.r*0.5;
-                rgb[x][y][1] = s[i].h.g*0.5;
-                rgb[x][y][2] = s[i].h.b*0.5;
+                rgb[y][x][0] = rgb[y][x][0]*0.5;
+                rgb[y][x][1] = rgb[y][x][1]*0.5;
+                rgb[y][x][2] = rgb[y][x][2]*0.5;
             }
-
-
         }
     }
     FILE* fout ;
