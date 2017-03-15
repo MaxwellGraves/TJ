@@ -169,6 +169,8 @@ int main(void)
     double dot;
     ray norm;
     ray toLight;
+    int modx;
+    int modz;
     for( y = 0 ; y < N ; y++ )
     {
         for( x = 0 ; x < M ; x++)
@@ -182,6 +184,21 @@ int main(void)
                 rgb[y][x][0] = s[sphere].h.r*0.5;
                 rgb[y][x][1] = s[sphere].h.g*0.5;
                 rgb[y][x][2] = s[sphere].h.b*0.5;
+                if( sphere == 0)
+                {
+                    c.x /= 0.1;
+                    c.z /= 0.1;
+                    modx = (int)(c.x)%2;
+                    modz = (int)(c.z)%2;
+                    if( (modx == 0&&modz == 1) ||(modz == 1&&modx == 0))
+                    {
+                        rgb[y][x][0] = 120*0.5;
+                        rgb[y][x][1] = 81*0.5;
+                        rgb[y][x][2] = 169*0.5;
+                    }
+
+
+                }
                 if( isShadowed(&c) != 1)
                 {
                     vAndNormalize(&s[sphere].c, &c, &norm);
