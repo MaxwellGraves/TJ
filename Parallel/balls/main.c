@@ -166,6 +166,9 @@ int main(void)
 {
     init();
     int y, x ;
+    double dot;
+    ray norm;
+    ray toLight;
     for( y = 0 ; y < N ; y++ )
     {
         for( x = 0 ; x < M ; x++)
@@ -176,17 +179,21 @@ int main(void)
             int sphere = intersection(&e, &p, &c);
             if( sphere >= 0)
             {
-                rgb[y][x][0] = s[sphere].h.r;
-                rgb[y][x][1] = s[sphere].h.g;
-                rgb[y][x][2] = s[sphere].h.b;
+                rgb[y][x][0] = s[sphere].h.r*0.5;
+                rgb[y][x][1] = s[sphere].h.g*0.5;
+                rgb[y][x][2] = s[sphere].h.b*0.5;
+                if( isShadowed(&c) != 1)
+                {
+                    vAndNormalize(&s[sphere].c, &c, &norm);
+                    vAndNormalize(&c, &l, &toLight);
+                    dot = dotp(norm.r, toLight.r);
+                    rgb[y][x][0] += rgb[y][x][0]*0.5*dot;
+                    rgb[y][x][1] += rgb[y][x][1]*0.5*dot;
+                    rgb[y][x][2] += rgb[y][x][2]*0.5*dot;
+                }
             }
 
-            if( isShadowed(&c) == 1)
-            {
-                rgb[y][x][0] = rgb[y][x][0]*0.5;
-                rgb[y][x][1] = rgb[y][x][1]*0.5;
-                rgb[y][x][2] = rgb[y][x][2]*0.5;
-            }
+               
         }
     }
     FILE* fout ;
