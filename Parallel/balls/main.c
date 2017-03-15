@@ -105,27 +105,26 @@ void vAndNormalize(point* a, point* b, ray* c)
 int rgb[N][M][3] ;
 
 point p;
-point eToC;
-point lToC;
-ray sight;
-ray light;
+point c;
 
-int isShadowed(point* target)
+int intersection (point* a, point* be, point* contact)
 {
     int i;
     double b;
     double c;
     double minT = 10000000;
-    point lightPoint;
-    vAndNormalize(&l, &p, &light);
+    point aToC;
+    ray ight;
+    vAndNormalize(a, be, &ight);
+    int sphere;
     for(i = 0; i<4; i++)
     {
 
-        lToC.x = l.x-s[i].c.x;
-        lToC.y = l.y-s[i].c.y;
-        lToC.z = l.z-s[i].c.z;
-        b = 2*(light.r.x*(lToC.x) + light.r.y*(lToC.y) + light.r.z*(lToC.z));
-        c = (lToC.x*lToC.x) + (lToC.y*lToC.y) + (lToC.z*lToC.z)- (s[i].r*s[i].r);
+        aToC.x = (a->x-s[i].c.x);
+        aToC.y = (a->y-s[i].c.y);
+        aToC.z = (a->z-s[i].c.z);
+        b = 2*(ight.r.x*(aToC.x) + ight.r.y*(aToC.y) + ight.r.z*(aToC.z));
+        c = (aToC.x*aToC.x) + (aToC.y*aToC.y) + (aToC.z*aToC.z)- (s[i].r*s[i].r);
         double disc = (b*b)-4*c;
         if (disc >= 0)
         {
@@ -133,28 +132,35 @@ int isShadowed(point* target)
             if(T1 > 0 && T1 < minT)
             {
                 minT = T1;
+                sphere = i;
             }
 
             double T2 = (-b - sqrt(disc))/2;
             if(T2 > 0 && T2 < minT)
             {
                 minT = T2;
+                sphere = i;
             }
         }
     }
-    lightPoint.x = light.s.x + minT*light.r.x;
-    lightPoint.y = light.s.y + minT*light.r.y;
-    lightPoint.z = light.s.z + minT*light.r.z;
-    if( distance(&lightPoint, &p) < 0.00001)
+    if( minT >= 10000000)
+        return -1;
+    contact->x = ight.s.x + minT*ight.r.x;
+    contact->y = ight.s.y + minT*ight.r.y;
+    contact->z = ight.s.z + minT*ight.r.z;
+    return sphere;
+}
+
+int isShadowed(point* target)
+{
+    point lightPoint;
+    intersection(&l, target, &lightPoint);
+    if( distance(&lightPoint, &c) < 0.00001)
     {
         return 0;
     }
     return 1;
 }
-//
-point p;
-point eToC;
-ray sight;
 
 int main(void)
 {
@@ -167,45 +173,15 @@ int main(void)
             p.x = (x+0.5)*1.333/640 - 0.167;
             p.y = 1 - (y+0.5)/480;
             p.z = 0.0;
-            vAndNormalize(&e, &p, &sight);
-            int i;
-            double b;
-            double c;
-            double minT = 10000000;
-            for(i = 0; i<4; i++)
+            int sphere = intersection(&e, &p, &c);
+            if( sphere >= 0)
             {
-
-                eToC.x = e.x-s[i].c.x;
-                eToC.y = e.y-s[i].c.y;
-                eToC.z = e.z-s[i].c.z;
-                b = 2*(sight.r.x*(eToC.x) + sight.r.y*(eToC.y) + sight.r.z*(eToC.z));
-                c = (eToC.x*eToC.x) + (eToC.y*eToC.y) + (eToC.z*eToC.z)- (s[i].r*s[i].r);
-                double disc = (b*b)-4*c;
-                if (disc >= 0)
-                {
-                    double T1 = (-b + sqrt(disc))/2;
-                    if(T1 > 0 && T1 < minT)
-                    {
-                        minT = T1;
-                        rgb[y][x][0] = s[i].h.r;
-                        rgb[y][x][1] = s[i].h.g;
-                        rgb[y][x][2] = s[i].h.b;
-                    }
-
-                    double T2 = (-b - sqrt(disc))/2;
-                    if(T2 > 0 && T2 < minT)
-                    {
-                        minT = T2;
-                        rgb[y][x][0] = s[i].h.r;
-                        rgb[y][x][1] = s[i].h.g;
-                        rgb[y][x][2] = s[i].h.b;
-                    }
-                }
+                rgb[y][x][0] = s[sphere].h.r;
+                rgb[y][x][1] = s[sphere].h.g;
+                rgb[y][x][2] = s[sphere].h.b;
             }
-            p.x = sight.s.x + minT*sight.r.x;
-            p.y = sight.s.y + minT*sight.r.y;
-            p.z = sight.s.z + minT*sight.r.z;
-            if( isShadowed(&p) == 1)
+
+            if( isShadowed(&c) == 1)
             {
                 rgb[y][x][0] = rgb[y][x][0]*0.5;
                 rgb[y][x][1] = rgb[y][x][1]*0.5;
