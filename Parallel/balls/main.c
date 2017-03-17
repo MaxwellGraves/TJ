@@ -169,6 +169,8 @@ int main(void)
     double dot;
     ray norm;
     ray toLight;
+    ray reflect;
+    ray toC;
     int m0d;
     for( y = 0 ; y < N ; y++ )
     {
@@ -183,7 +185,7 @@ int main(void)
                 rgb[y][x][0] = s[sphere].h.r;
                 rgb[y][x][1] = s[sphere].h.g;
                 rgb[y][x][2] = s[sphere].h.b;
-                if( sphere == 0)
+                if( sphere == 0) //checkerboard
                 {
                     m0d = ((int)(c.x*10+1000)+(int) (c.z*10+1000))%2;
 
@@ -196,13 +198,19 @@ int main(void)
 
 
                 }
-                if( isShadowed(&c) == 1)
+                reflect.s = c;//reflect
+                vAndNormalize(&e, &c, &toC);
+                vAndNormalize(&s[sphere].c, &c, &norm);
+                reflectPoint(norm.r, );
+                diff(&reflect.r, toC.r, ); // R - 2(R*N)N
+
+                if( isShadowed(&c) == 1) //binary shadow
                 {
                     rgb[y][x][0] = rgb[y][x][0]*0.5;
                     rgb[y][x][1] = rgb[y][x][1]*0.5;
                     rgb[y][x][2] = rgb[y][x][2]*0.5;
                 }
-                else
+                else // gradient shadow
                 {
                     vAndNormalize(&s[sphere].c, &c, &norm);
                     vAndNormalize(&c, &l, &toLight);
@@ -212,7 +220,7 @@ int main(void)
                     rgb[y][x][2] -= rgb[y][x][2]*0.5*(1-dot);
                 }
             }
-            else
+            else //sky
             {
                 rgb[y][x][0] = 178;
                 rgb[y][x][1] = 255;
