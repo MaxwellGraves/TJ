@@ -49,6 +49,13 @@ void diff( point* t, point u, point v )   // t = u - v
     t->z = u.z - v.z ;
 }
 
+void sum( point* t, point u, point v )   // t = u - v
+{
+    t->x = u.x + v.x ;
+    t->y = u.y + v.y ;
+    t->z = u.z + v.z ;
+}
+
 sphere s[4];
 void init()
 {
@@ -162,6 +169,14 @@ int isShadowed(point* target)
     return 1;
 }
 
+void reflectPoint ( point* result, point incident, point normal)
+{
+    result->x = 2*(dotp(incident, normal))*normal.x;
+    result->y = 2*(dotp(incident, normal))*normal.y;
+    result->z = 2*(dotp(incident, normal))*normal.z;
+}
+
+
 int main(void)
 {
     init();
@@ -171,7 +186,11 @@ int main(void)
     ray toLight;
     ray reflect;
     ray toC;
+    ray temp;
     int m0d;
+    int sphere;
+    point summ;
+    point useless;
     for( y = 0 ; y < N ; y++ )
     {
         for( x = 0 ; x < M ; x++)
@@ -201,8 +220,20 @@ int main(void)
                 reflect.s = c;//reflect
                 vAndNormalize(&e, &c, &toC);
                 vAndNormalize(&s[sphere].c, &c, &norm);
-                reflectPoint(norm.r, );
-                diff(&reflect.r, toC.r, ); // R - 2(R*N)N
+                reflectPoint(&temp.r, toC.r, norm.r);
+                diff(&reflect.r, toC.r, temp.r); // R - 2(R*N)N
+                sum(&summ, c, reflect.r);
+                sphere = intersection(&c, &summ, &useless);
+                if( sphere >= 0)
+                {
+                    rgb[y][x][0] = rgb[y][x][0]*0.5;
+                    rgb[y][x][1] = rgb[y][x][1]*0.5;
+                    rgb[y][x][2] = rgb[y][x][2]*0.5;
+
+                    rgb[y][x][0] += s[sphere].h.r*0.5;
+                    rgb[y][x][1] += s[sphere].h.g*0.5;
+                    rgb[y][x][2] += s[sphere].h.b*0.5;
+                }
 
                 if( isShadowed(&c) == 1) //binary shadow
                 {
