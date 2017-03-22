@@ -64,9 +64,9 @@ void init()
     s[0].c.y = -20000.00 ; // the floor
     s[0].c.z =      0.50 ;
     s[0].r   =  20000.25 ;
-    s[0].h.r =    205    ; // color is Peru
-    s[0].h.g =    133    ;
-    s[0].h.b =     63    ;
+    s[0].h.r =    250    ; // color is Peru
+    s[0].h.g =    250    ;
+    s[0].h.b =     250    ;
     //
     s[1].c.x =      0.50 ;
     s[1].c.y =      0.50 ;
@@ -152,9 +152,9 @@ int intersection (point* a, point* be, point* contact)
     }
     if( minT >= 10000000)
         return -1;
-    contact->x = ight.s.x + minT*ight.r.x;
-    contact->y = ight.s.y + minT*ight.r.y;
-    contact->z = ight.s.z + minT*ight.r.z;
+    contact->x = ight.s.x + minT*0.999999*ight.r.x;
+    contact->y = ight.s.y + minT*0.999999*ight.r.y;
+    contact->z = ight.s.z + minT*0.999999*ight.r.z;
     return sphere;
 }
 
@@ -190,7 +190,7 @@ int main(void)
     int m0d;
     int sphere;
     point summ;
-    point useless;
+    point useful;
     for( y = 0 ; y < N ; y++ )
     {
         for( x = 0 ; x < M ; x++)
@@ -210,30 +210,15 @@ int main(void)
 
                     if( m0d != 0)
                     {
-                        rgb[y][x][0] = 120;
-                        rgb[y][x][1] = 81;
-                        rgb[y][x][2] = 169;
+                        rgb[y][x][0] = 150;
+                        rgb[y][x][1] = 150;
+                        rgb[y][x][2] = 150;
                     }
 
 
                 }
-                reflect.s = c;//reflect
-                vAndNormalize(&e, &c, &toC);
-                vAndNormalize(&s[sphere].c, &c, &norm);
-                reflectPoint(&temp.r, toC.r, norm.r);
-                diff(&reflect.r, toC.r, temp.r); // R - 2(R*N)N
-                sum(&summ, c, reflect.r);
-                sphere = intersection(&c, &summ, &useless);
-                if( sphere >= 0)
-                {
-                    rgb[y][x][0] = rgb[y][x][0]*0.5;
-                    rgb[y][x][1] = rgb[y][x][1]*0.5;
-                    rgb[y][x][2] = rgb[y][x][2]*0.5;
 
-                    rgb[y][x][0] += s[sphere].h.r*0.5;
-                    rgb[y][x][1] += s[sphere].h.g*0.5;
-                    rgb[y][x][2] += s[sphere].h.b*0.5;
-                }
+                    
 
                 if( isShadowed(&c) == 1) //binary shadow
                 {
@@ -249,6 +234,39 @@ int main(void)
                     rgb[y][x][0] -= rgb[y][x][0]*0.5*(1-dot);
                     rgb[y][x][1] -= rgb[y][x][1]*0.5*(1-dot);
                     rgb[y][x][2] -= rgb[y][x][2]*0.5*(1-dot);
+                }
+                reflect.s = c;//reflect
+                vAndNormalize(&e, &c, &toC);
+                vAndNormalize(&s[sphere].c, &c, &norm); 
+                reflectPoint(&temp.r, toC.r, norm.r);
+                diff(&reflect.r, toC.r, temp.r); // R - 2(R*N)N
+                sum(&summ, c, reflect.r);
+                sphere = intersection(&c, &summ, &useful);
+                if( sphere >= 0)
+                {
+                    rgb[y][x][0] = rgb[y][x][0]*0.5;
+                    rgb[y][x][1] = rgb[y][x][1]*0.5;
+                    rgb[y][x][2] = rgb[y][x][2]*0.5;
+
+                    if( sphere == 0) //checkerboard
+                    {
+                        m0d = ((int)(useful.x*10+1000)+(int) (useful.z*10+1000))%2;
+
+                        if( m0d != 0)
+                        {
+                            rgb[y][x][0] += (int)150*0.5;
+                            rgb[y][x][1] += (int)150*0.5;
+                            rgb[y][x][2] += (int)150*0.5;
+                       }
+                       
+                    }
+                    else
+                    {
+                        rgb[y][x][0] += s[sphere].h.r*0.5;
+                        rgb[y][x][1] += s[sphere].h.g*0.5;
+                        rgb[y][x][2] += s[sphere].h.b*0.5;
+                  
+                    }
                 }
             }
             else //sky
